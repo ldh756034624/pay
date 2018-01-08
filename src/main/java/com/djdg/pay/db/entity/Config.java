@@ -2,6 +2,8 @@ package com.djdg.pay.db.entity;
 
 import com.djdg.pay.db.BaseEntity;
 import lombok.Data;
+import org.hibernate.annotations.DynamicInsert;
+import org.hibernate.annotations.DynamicUpdate;
 
 import javax.persistence.*;
 
@@ -16,36 +18,45 @@ import static javax.persistence.GenerationType.IDENTITY;
  */
 @Data
 @Entity
-@Table(name = "Config")
+@DynamicInsert
+@DynamicUpdate
+@Table(name = "payment_config")
 public class Config extends BaseEntity {
-
 
     @Id
     @SequenceGenerator(name = "paySeq", sequenceName = "pay_SEQ", allocationSize = 1, initialValue = 1)
     @GeneratedValue(strategy = IDENTITY, generator = "paySeq")
     private Long id;
 
-    @Column(name = "name", nullable = false, columnDefinition = "varchar(64) default '' COMMENT '子项目名称'")
-    private String name;
-
-    @Column(name = "app_id", nullable = false, columnDefinition = "varchar(64) default '' COMMENT 'appId'")
+    @Column(name = "app_id", columnDefinition = "VARCHAR(255) COMMENT 'appid'", nullable = false)
     private String appId;
-    
-    @Column(name = "callback_url", nullable = false, columnDefinition = "varchar(255) default '' COMMENT '回调地址'")
-    private String callBackUrl;
 
-    @Column(name = "secret_key", nullable = false, columnDefinition = "varchar(128) default '' COMMENT '加密key'")
-    private String secretKey;
+    @Column(name = "app_secret", columnDefinition = "VARCHAR(255) COMMENT 'secret'")
+    private String appSecret;
 
-    @Column(name = "callback_status",nullable = false,columnDefinition = "int default 0 COMMENT '是否直接回调'")
-    private Integer callbackStatus;
-    
-    @Column(name = "wx_app_id", nullable = false, columnDefinition = "varchar(64) default '' COMMENT 'w微信AppId'")
-    private String wxAppId;
+    @Column(name = "mch_id", columnDefinition = "VARCHAR(255) COMMENT '商户号'", nullable = false)
+    private String mchId;
 
-    @Column(name = "wx_secret_key", nullable = false, columnDefinition = "varchar(64) default '' COMMENT '微信密钥'")
-    private String wxSecretKey;
+    @Column(name = "api_key", columnDefinition = "VARCHAR(255) COMMENT '支付密钥'", nullable = false)
+    private String apiKey;
 
+    @Column(name = "body", columnDefinition = "VARCHAR(255) COMMENT '商品描述'", nullable = false)
+    private String body;
+
+    @Column(name = "enable_credit_cart", columnDefinition = "BIT(1) DEFAULT 0 COMMENT '是否可用信用卡'", nullable = false)
+    private Boolean enableCreditCart;
+
+    @Column(name = "notify_url", columnDefinition = "VARCHAR(255) COMMENT '支付回调地址'", nullable = false)
+    private String notifyUrl;
+
+    @Column(name = "callback_url", columnDefinition = "VARCHAR(255) COMMENT '业务回调地址'")
+    private String callbackUrl;
+
+    @Column(name = "business_app_id", columnDefinition = "VARCHAR(32) COMMENT '业务appId'")
+    private String businessAppId;
+
+    @Column(name = "status", columnDefinition = "SMALLINT DEFAULT 0 COMMENT '状态'", nullable = false)
+    protected Integer status;
 
 
 }

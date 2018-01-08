@@ -1,12 +1,20 @@
 package com.djdg.pay;
 
+import com.sun.org.apache.bcel.internal.generic.RETURN;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Bean;
+import org.springframework.web.client.RestTemplate;
 
 @SpringBootApplication
 public class PayApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(PayApplication.class, args);
+	}
+
+	@Bean
+	public RestTemplate newRestTemplate(){
+		return new RestTemplate();
 	}
 }

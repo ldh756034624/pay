@@ -24,16 +24,14 @@ public class ConfigService {
     private ConfigRepository configRepository;
 
     public Result register(ConfigDto configDto){
-        Config config = configRepository.findByAppId("appId");
+        Config config = configRepository.findByBusinessAppId(configDto.getBusinessAppId());
         if (config == null) {
             config = new Config();
             BeanUtils.copyProperties(configDto,config);
-            config.setSecretKey(UUID.randomUUID().toString());
-            configRepository.save(config);
+            config = configRepository.saveAndFlush(config);
         }else{
-            config.setCallBackUrl(configDto.getCallBackUrl());
-            config.setCallbackStatus(configDto.getCallbackStatus());
-            configRepository.save(config);
+            BeanUtils.copyProperties(configDto,config,"id");
+            config = configRepository.saveAndFlush(config);
         }
         return Result.success(config);
     }

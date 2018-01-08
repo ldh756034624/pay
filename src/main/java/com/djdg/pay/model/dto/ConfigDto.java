@@ -2,6 +2,7 @@ package com.djdg.pay.model.dto;
 
 import lombok.Data;
 import org.hibernate.validator.constraints.NotBlank;
+import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.persistence.Column;
 
@@ -14,18 +15,33 @@ import javax.persistence.Column;
  */
 @Data
 public class ConfigDto {
-    @NotBlank(message = "请填入项目名称")
-    private String name;
-    @NotBlank(message = "请填入appId,请注意要全局唯一")
-    private String appId;
-    @NotBlank(message = "请填入微信AppId,请注意要全局唯一")
-    private String wxAppId;
-    @NotBlank(message = "请填入微信密钥,请注意要全局唯一")
-    private String wxSecretKey;
-    @NotBlank(message = "请填入回调地址")
-    private String callBackUrl;
 
-    private int callbackStatus;
+    @NotBlank(message = "微信Appi都不能为空")
+    private String appId;
+    @NotBlank(message = "secret不能为空")
+    private String appSecret;
+
+    @NotBlank(message = "商户号不能为空")
+    private String mchId;
+
+    @NotBlank(message = "支付密钥不能为空")
+    private String apiKey;
+
+    @NotBlank(message = "商品描述不能为空")
+    @Column(name = "body", columnDefinition = "VARCHAR(255) COMMENT '商品描述'", nullable = false)
+    private String body;
+
+    @NotEmpty(message = "是否可用信用卡不能为空")
+    private Boolean enableCreditCart;
+
+    @NotEmpty(message = "支付回调地址不能为空")
+    private String notifyUrl;
+
+    @NotEmpty(message = "业务回调地址不能为空")
+    private String callbackUrl;
+
+    @NotEmpty(message = "业务appId")
+    private String businessAppId;
 
 
 
