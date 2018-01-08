@@ -18,8 +18,16 @@ public class ConfigDto {
     private String name;
     @NotBlank(message = "请填入appId,请注意要全局唯一")
     private String appId;
+    @NotBlank(message = "请填入微信AppId,请注意要全局唯一")
+    private String wxAppId;
+    @NotBlank(message = "请填入微信密钥,请注意要全局唯一")
+    private String wxSecretKey;
     @NotBlank(message = "请填入回调地址")
     private String callBackUrl;
+
     private int callbackStatus;
+
+
+
 
 }

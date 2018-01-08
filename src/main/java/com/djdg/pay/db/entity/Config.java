@@ -39,8 +39,12 @@ public class Config extends BaseEntity {
 
     @Column(name = "callback_status",nullable = false,columnDefinition = "int default 0 COMMENT '是否直接回调'")
     private Integer callbackStatus;
+    
+    @Column(name = "wx_app_id", nullable = false, columnDefinition = "varchar(64) default '' COMMENT 'w微信AppId'")
+    private String wxAppId;
 
-
+    @Column(name = "wx_secret_key", nullable = false, columnDefinition = "varchar(64) default '' COMMENT '微信密钥'")
+    private String wxSecretKey;
 
 
 
