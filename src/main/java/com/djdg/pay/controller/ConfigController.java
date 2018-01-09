@@ -27,5 +27,6 @@ public class ConfigController {
     @PostMapping("/regist")
     public Result regist(@Validated @RequestBody ConfigDto configDto){
         return configService.register(configDto);
+
     }
 }

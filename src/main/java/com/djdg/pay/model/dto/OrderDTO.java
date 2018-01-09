@@ -1,7 +1,9 @@
 package com.djdg.pay.model.dto;
 
 import lombok.Data;
+import org.hibernate.validator.constraints.NotBlank;
 
+import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 
 /**
@@ -14,15 +16,17 @@ import java.math.BigDecimal;
 @Data
 public class OrderDTO {
 
-    private String openId;
+    private String openId ="";
+    @NotBlank(message = "请传入订单号")
+    private String orderNo = "";
+    @NotBlank(message = "请传入业务订单id")
+    private String businessOrderId  = "" ;
+    @NotNull(message = "请传入支付金额")
+    private BigDecimal totalAmount = new BigDecimal(0);
+    @NotBlank(message = "请传入业务Appid")
+    private String businessAppId = "" ;
 
-    private String orderNo;
-
-    private String businessOrderId;
-
-    private BigDecimal totalAmount;
-
-    private String businessAppId;
+    private boolean app = false;
 
 
 

@@ -31,8 +31,7 @@ public class RequestLogInterceptor implements HandlerInterceptor {
 
     private NamedThreadLocal<Long> startTimeThreadLocal = new NamedThreadLocal<>("StopWatch-StartTime");
 
-    @Value("${h9.performance.consume.maxTime}")
-    private int consumeMaxTime;
+    private int consumeMaxTime = 500;
 
     @SuppressWarnings("Duplicates")
     @Override
