@@ -28,6 +28,7 @@ public class OrderVo {
     }
 
     public OrderVo(Order order) {
+        payOrderId = order.getId();
         BeanUtils.copyProperties(order,this);
     }
 }

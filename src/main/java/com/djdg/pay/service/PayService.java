@@ -9,10 +9,9 @@ import com.djdg.pay.model.dto.OrderDTO;
 import com.djdg.pay.model.dto.OrderVo;
 import com.djdg.pay.model.dto.PrepayDTO;
 import com.djdg.pay.model.vo.WxPrepayInfo;
+import com.djdg.pay.model.vo.WxPrepayVo;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.Resource;
 import java.math.BigDecimal;
@@ -54,10 +53,10 @@ public class PayService {
             order.setOpenId(orderDTO.getOpenId());
             order.setTotalAmount(orderDTO.getTotalAmount());
             order.setPayStatus(Order.OrderPayStatus.UN_PAY.getValue());
-            order = orderRepository.save(order);
+            order = orderRepository.saveAndFlush(order);
         }else{
             order.setOpenId(orderDTO.getOpenId());
-            order = orderRepository.save(order);
+            order = orderRepository.saveAndFlush(order);
         }
         return Result.success(new OrderVo(order));
     }
@@ -74,6 +73,14 @@ public class PayService {
         if(config==null){
             return Result.fail("获取支付信息出错");
         }
+        PrepayDTO prepayDTO = getPrepayDTO(order, config);
+        WxPrepayVo wxPrepayVo = wechatService.getOrder(prepayDTO);
+        WxPrepayInfo wxPrepayInfo = new WxPrepayInfo(wxPrepayVo);
+        wxPrepayInfo.sign(config.getApiKey());
+        return Result.success(wxPrepayInfo);
+    }
+
+    private PrepayDTO getPrepayDTO(Order order, Config config) {
         PrepayDTO prepayDTO = new PrepayDTO();
         prepayDTO.setAppid(config.getAppId());
         prepayDTO.setBody(config.getBody());
@@ -95,10 +102,8 @@ public class PayService {
         prepayDTO.setTotal_fee(String.valueOf(amount));
         prepayDTO.setTrade_type(isApp?"APP":"JSAPI");
         prepayDTO.sign(config.getApiKey());
-        WxPrepayInfo wxPrepayInfo = wechatService.getOrder(prepayDTO);
-        return Result.success(wxPrepayInfo);
+        return prepayDTO;
     }
-
 
 
     public Config getConfig(String appId){

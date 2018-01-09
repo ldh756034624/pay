@@ -20,6 +20,7 @@ import java.util.UUID;
 @XmlRootElement(name = "xml")
 public class PrepayDTO {
 
+
     private String appid;
 
     private String body;
@@ -44,41 +45,34 @@ public class PrepayDTO {
 
     private String spbill_create_ip = "127.0.0.1";
 
-
-
     public String sign(String key){
-        StringBuffer stringBuffer = new StringBuffer();
-        stringBuffer.append("appid=").append(getAppid());
-        stringBuffer.append("body=").append(getBody());
+        StringBuffer singStr = new StringBuffer();
+        singStr.append("appid=").append(getAppid());
+        singStr.append("&body=").append(getBody());
         if(StringUtils.isNotEmpty(limit_pay)){
-            stringBuffer.append("limit_pay=").append(getLimit_pay());
+            singStr.append("&limit_pay=").append(getLimit_pay());
         }
-        stringBuffer.append("mch_id=").append(getMch_id());
-        stringBuffer.append("nonce_str=").append(getNonce_str());
-        stringBuffer.append("notify_url=").append(getNotify_url());
+        singStr.append("&mch_id=").append(getMch_id());
+        singStr.append("&nonce_str=").append(getNonce_str());
+        singStr.append("&notify_url=").append(getNotify_url());
         if(StringUtils.isNotEmpty(openid)){
-            stringBuffer.append("openid=").append(getOpenid());
+            singStr.append("&openid=").append(getOpenid());
         }
-        stringBuffer.append("out_trade_no=").append(getOut_trade_no());
-        stringBuffer.append("spbill_create_ip=").append(getSpbill_create_ip());
-        stringBuffer.append("total_fee=").append(getTotal_fee());
-        stringBuffer.append("trade_type=").append(getTrade_type());
-        stringBuffer.append("&key=").append(key);
-        this.sign = MD5Util.getMD5(sign.toString()).toUpperCase();
+        singStr.append("&out_trade_no=").append(getOut_trade_no());
+        singStr.append("&spbill_create_ip=").append(getSpbill_create_ip());
+        singStr.append("&total_fee=").append(getTotal_fee());
+        singStr.append("&trade_type=").append(getTrade_type());
+        singStr.append("&key=").append(key);
+        this.sign = MD5Util.getMD5(singStr.toString()).toUpperCase();
+        System.out.println("singStr = [" + singStr.toString() + "]");
+        System.out.println("sign = [" + sign + "]");
         return sign;
     }
-
-
 
 
     public static String createNonceStr() {
         return UUID.randomUUID().toString().replace("-", "");
     }
-
-    public static long genTimeStamp() {
-        return System.currentTimeMillis() / 1000;
-    }
-
 
 
 
