@@ -22,6 +22,7 @@ public class OrderVo {
     private BigDecimal totalAmount;
     private String businessAppId;
 
+
     public OrderVo() {
 
     }

@@ -55,6 +55,7 @@ public class Order extends BaseEntity {
     protected Integer status;
 
 
+
     public static enum OrderPayStatus {
 
         UN_PAY(0, "待支付"),

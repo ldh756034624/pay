@@ -3,7 +3,9 @@ package com.djdg.pay.controller;
 import com.djdg.pay.common.Result;
 import com.djdg.pay.model.dto.OrderDTO;
 import com.djdg.pay.service.PayService;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -24,7 +26,7 @@ public class PayController {
     private PayService payService;
 
     @GetMapping("initOrder")
-    public Result createPrepayOrder(OrderDTO orderDTO){
+    public Result createPrepayOrder(@Validated @RequestBody OrderDTO orderDTO){
         return payService.createPrepayOrder(orderDTO);
     }
 
