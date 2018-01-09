@@ -18,7 +18,6 @@ import static javax.persistence.GenerationType.IDENTITY;
 @Data
 @Entity
 @DynamicInsert
-@DynamicUpdate
 @Table(name = "order_info", uniqueConstraints = {@UniqueConstraint(columnNames="order_no")})
 public class Order extends BaseEntity {
 

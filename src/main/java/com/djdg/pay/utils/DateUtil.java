@@ -26,6 +26,7 @@ public class DateUtil {
         GBK_MONTH("yyyy年MM月"),
         GBK_YEAR("yyyy年"),
         NON_SEPARATOR_DAY("yyyyMMdd"),
+        NON_SEPARATOR_SECOND("yyyyMMddHHmmss"),
         SECOND("yyyy-MM-dd HH:mm:ss"),
         MINUTE("yyyy-MM-dd HH:mm"),
         HOUR("yyyy-MM-dd HH"),

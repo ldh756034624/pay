@@ -3,7 +3,6 @@ package com.djdg.pay.db.entity;
 import com.djdg.pay.db.BaseEntity;
 import lombok.Data;
 import org.hibernate.annotations.DynamicInsert;
-import org.hibernate.annotations.DynamicUpdate;
 
 import javax.persistence.*;
 
@@ -19,7 +18,6 @@ import static javax.persistence.GenerationType.IDENTITY;
 @Data
 @Entity
 @DynamicInsert
-@DynamicUpdate
 @Table(name = "payment_config")
 public class Config extends BaseEntity {
 
