@@ -8,18 +8,20 @@ import com.djdg.pay.db.repo.OrderRepository;
 import com.djdg.pay.model.dto.OrderDTO;
 import com.djdg.pay.model.dto.OrderVo;
 import com.djdg.pay.model.dto.PrepayDTO;
+import com.djdg.pay.model.vo.WxPrepayInfo;
 import org.apache.commons.lang3.StringUtils;
-import org.aspectj.weaver.NewConstructorTypeMunger;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.Resource;
+import java.math.BigDecimal;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Created with IntelliJ IDEA.
- * Description:TODO
+ * Description:微信支付工具
  * PayService:刘敏华 shadow.liu@hey900.com
  * Date: 2018/1/8
  * Time: 14:54
@@ -31,10 +33,9 @@ public class PayService {
     private ConfigRepository configRepository;
     @Resource
     private OrderRepository orderRepository;
-    
-    
     @Resource
-    private RestTemplate restTemplate;
+    private WechatService wechatService;
+
 
     public Result createPrepayOrder(OrderDTO orderDTO
     ){
@@ -43,7 +44,6 @@ public class PayService {
             if(StringUtils.isEmpty(openid)){
                 return Result.fail("请微信登录",401);
             }
-
         }
         Order order = orderRepository.findByOrderNo(orderDTO.getOrderNo());
         if(order == null){
@@ -77,20 +77,26 @@ public class PayService {
         PrepayDTO prepayDTO = new PrepayDTO();
         prepayDTO.setAppid(config.getAppId());
         prepayDTO.setBody(config.getBody());
+
         Boolean enableCreditCart = config.getEnableCreditCart();
         if (!enableCreditCart) prepayDTO.setLimit_pay("no_credit");
+
         prepayDTO.setMch_id(config.getMchId());
         prepayDTO.setNotify_url(config.getNotifyUrl());
+
         String openId = order.getOpenId();
-        if(!StringUtils.isEmpty(openId)){
+        boolean isApp = StringUtils.isEmpty(openId);
+        if(!isApp){
             prepayDTO.setOpenid(openId);
         }
-        prepayDTO.setNotify_url(config.getNotifyUrl());
-
-
-        //
-
-        return Result.success();
+        //TODO 更改微信订单号
+        prepayDTO.setOut_trade_no(order.getOrderNo());
+        int amount = order.getTotalAmount().multiply(new BigDecimal("100")).intValue();
+        prepayDTO.setTotal_fee(String.valueOf(amount));
+        prepayDTO.setTrade_type(isApp?"APP":"JSAPI");
+        prepayDTO.sign(config.getApiKey());
+        WxPrepayInfo wxPrepayInfo = wechatService.getOrder(prepayDTO);
+        return Result.success(wxPrepayInfo);
     }
 
 

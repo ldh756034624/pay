@@ -19,12 +19,19 @@ public class WxPrepayInfo  {
     private String signType;
     /** 支付签名 */
     private String paySign;
+
     private String timestamp;
+
     private String prepayId;
+
     private String partnerId;
+
     private String mchId;
+
     private String errCode;
+
     private String errCodeDes;
+
     private String resultCode;
 
 
