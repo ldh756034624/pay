@@ -20,7 +20,6 @@ public class HtmlController {
     @GetMapping("/toPay")
     @PrintReqResLog()
     public String toPay(@RequestParam(required = false) Long orderId,Model model){
-        model.addAttribute("orderId", orderId);
         return "index";
     }
 

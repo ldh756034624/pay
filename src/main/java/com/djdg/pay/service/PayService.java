@@ -11,6 +11,7 @@ import com.djdg.pay.model.dto.PrepayDTO;
 import com.djdg.pay.model.vo.WxPrepayInfo;
 import com.djdg.pay.model.vo.WxPrepayVo;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -107,19 +108,9 @@ public class PayService {
 
 
     public Config getConfig(String appId){
-        if(configs.containsKey(appId)){
-            return configs.get(configs);
-        }
+
         Config config = configRepository.findByBusinessAppId(appId);
-        configs.put(appId, config);
         return config;
-    }
-
-    static Map<String, Config> configs = new ConcurrentHashMap<>();
-
-
-    public static void clearConfig(String key){
-        configs.remove(key);
     }
 
 

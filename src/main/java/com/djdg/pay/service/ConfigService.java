@@ -33,7 +33,6 @@ public class ConfigService {
             BeanUtils.copyProperties(configDto,config,"id");
             config = configRepository.saveAndFlush(config);
         }
-        PayService.clearConfig(configDto.getBusinessAppId());
         return Result.success(config);
     }
 

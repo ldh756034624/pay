@@ -32,20 +32,20 @@
 
   // 解析查询参数
   if (path || true) {
-//    var pairs = path.split("&");
-//    var args = {}
-//    for (var i = 0; i < pairs.length; i++) {
-//      var pos = pairs[i].indexOf('=');
-//      if (pos == -1) {
-//        continue;
-//      }
-//      var argname = pairs[i].substring(0, pos);
-//      var value = pairs[i].substring(pos + 1);
-//      args[argname] = unescape(value);
-//    }
+    var pairs = path.split("&");
+    var args = {}
+    for (var i = 0; i < pairs.length; i++) {
+      var pos = pairs[i].indexOf('=');
+      if (pos == -1) {
+        continue;
+      }
+      var argname = pairs[i].substring(0, pos);
+      var value = pairs[i].substring(pos + 1);
+      args[argname] = unescape(value);
+    }
     ajax({
       type: "GET",
-      url: "/h9/pay/getPrepay?orderId=1",
+      url: "/h9/pay/getPrepay?orderId=" + args.orderId,
       dataType: "json",
 //      data: JSON.stringify({"orderId": 1}),
 //      token: args.token,
