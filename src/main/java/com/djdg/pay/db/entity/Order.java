@@ -52,6 +52,9 @@ public class Order extends BaseEntity {
 
     @Column(name = "status", columnDefinition = "SMALLINT DEFAULT 0 COMMENT '状态:0默认，1已回调业务系统'", nullable = false)
     protected Integer status;
+    
+    @Column(name = "pay_method",nullable = false,columnDefinition = "int default 0 COMMENT '支付方式'")
+    private Integer payMethod = PayMethodEnum.WXJS.getKey();
 
 
 

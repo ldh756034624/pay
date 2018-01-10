@@ -1,5 +1,6 @@
 package com.djdg.pay.model.dto;
 
+import com.djdg.pay.db.entity.Order;
 import lombok.Data;
 import org.hibernate.validator.constraints.NotBlank;
 
@@ -26,7 +27,7 @@ public class OrderDTO {
     @NotBlank(message = "请传入业务Appid")
     private String businessAppId = "" ;
 
-    private boolean app = false;
+    private int payMethod = Order.PayMethodEnum.WXJS.getKey();
 
 
 

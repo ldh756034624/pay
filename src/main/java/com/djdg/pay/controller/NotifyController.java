@@ -25,16 +25,15 @@ public class NotifyController {
     /**
      *
      * @param baseXmlDTO
-     * @param payMethod 支付方式 wx/wxjs
      * @param businessAppId
      * @return
      */
-    @PostMapping(value = "wx/{payMethod}/{businessAppId}", produces = "text/xml;charset=utf-8")
-    public WxPayResponseVO wxNotify(@RequestBody BaseXmlDTO baseXmlDTO, @PathVariable("payMethod") String payMethod, @PathVariable("businessAppId") String businessAppId) {
+    @PostMapping(value = "wx/{businessAppId}", produces = "text/xml;charset=utf-8")
+    public WxPayResponseVO wxNotify(@RequestBody BaseXmlDTO baseXmlDTO, @PathVariable("businessAppId") String businessAppId) {
         SortedMap<String, String> notifyParams = baseXmlDTO.get();
         WxNotificationDTO notification = JSONObject.parseObject(JSONObject.toJSONString(notifyParams), WxNotificationDTO.class);
         notification.setNotify_params(notifyParams);
-        return notifyService.processWxNotification(notification, payMethod, businessAppId);
+        return notifyService.processWxNotification(notification, businessAppId);
     }
 
 }

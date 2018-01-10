@@ -1,10 +1,163 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <title>Title</title>
+  <meta charset="utf-8"></meta>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0"></meta>
+  <meta name="apple-mobile-web-app-capable" content="yes"></meta>
+  <meta name="apple-mobile-web-app-status-bar-style" content="black"></meta>
+  <meta name="format-detection" content="telephone=no"></meta>
+  <meta http-equiv="Expires" content="-1"></meta>
+  <meta http-equiv="Cache-Control" content="no-cache"></meta>
+  <meta http-equiv="Pragma" content="no-cache"></meta>
+  <meta name="description" content="微信支付"></meta>
+  <meta name="Keywords" content="微信支付"></meta>
+  <title>微信支付</title>
+  <style type="text/css">
+    body, html {
+      background-color: #f1f1f1;
+      margin: 0;
+      padding: 0;
+    }
+  </style>
 </head>
 <body>
+<div class="box" id="box">
+  欢迎来到微信支付
+  跳转中... ...
+</div>
+<script src="http://res.wx.qq.com/open/js/jweixin-1.0.0.js"></script>
+<script type="text/javascript">
 
+  var path = decodeURI(window.location.search.substring(1))
+
+  // 解析查询参数
+  if (path || true) {
+//    var pairs = path.split("&");
+//    var args = {}
+//    for (var i = 0; i < pairs.length; i++) {
+//      var pos = pairs[i].indexOf('=');
+//      if (pos == -1) {
+//        continue;
+//      }
+//      var argname = pairs[i].substring(0, pos);
+//      var value = pairs[i].substring(pos + 1);
+//      args[argname] = unescape(value);
+//    }
+    ajax({
+      type: "GET",
+      url: "/h9/pay/getPrepay?orderId=1",
+      dataType: "json",
+//      data: JSON.stringify({"orderId": 1}),
+//      token: args.token,
+//      client: args.client,
+      beforeSend: function (request) {
+        console.log('发送请求')
+      },
+      success: function (res) {
+        console.log('后台返回config')
+        if (res.code === 0) {
+          console.log('res.data', res.data)
+          wxPay(res.data)
+        }
+      },
+      error: function () {
+        console.log("error")
+      }
+    })
+  } else {
+    alert('未获取到参数')
+  }
+
+  // 微信支付
+  function wxPay(config) {
+    console.log('执行微信支付')
+    wx.config({
+      debug: false,
+      appId: config.appId,
+      timestamp: config.timestamp,
+      nonceStr: config.nonceStr,
+      signature: config.paySign,
+      jsApiList: ['chooseWXPay']
+    })
+
+    wx.ready(function () {
+      console.log('调取微信支付')
+      wx.chooseWXPay({
+        timestamp: config.timestamp, // 支付签名时间戳，注意微信jssdk中的所有使用timestamp字段均为小写。但最新版的支付后台生成签名使用的timeStamp字段名需大写其中的S字符
+        nonceStr: config.nonceStr, // 支付签名随机串，不长于 32 位
+        package: config.packageParam, // 统一支付接口返回的prepay_id参数值，提交格式如：prepay_id=***）
+        signType: config.signType, // 签名方式，默认为'SHA1'，使用新版支付需传入'MD5'
+        paySign: config.paySign, // 支付签名
+        success: function (res) {
+//          let rcmurl = "/ja/memberbao/v1/pay/return/" + self.$route.query.appId + '/' + self.$route.query.payType + '?orderId=' + self.$route.query.orderId;
+//          self.loading.msg = "支付中...";
+//          self.loading.show = true;
+//          // window.location.href = url + rcmurl;
+//          location.replace(url + rcmurl);
+          alert('支付成功')
+        }
+      });
+    });
+  }
+
+
+  // ajax方法封装
+  function ajax() {
+    var ajaxData = {
+      type: arguments[0].type || "GET",
+      url: arguments[0].url || "",
+      async: arguments[0].async || "true",
+      data: arguments[0].data || null,
+      token: arguments[0].token || null,
+      client: arguments[0].client || 3,
+      dataType: arguments[0].dataType || "text",
+      contentType: arguments[0].contentType || "application/json;charset=UTF-8",
+      beforeSend: arguments[0].beforeSend || function () {
+      },
+      success: arguments[0].success || function () {
+      },
+      error: arguments[0].error || function () {
+      }
+    }
+    ajaxData.beforeSend()
+    var xhr = createxmlHttpRequest();
+    xhr.responseType = ajaxData.dataType;
+    xhr.open(ajaxData.type, ajaxData.url, ajaxData.async);
+    xhr.setRequestHeader("Content-Type", ajaxData.contentType);
+    xhr.setRequestHeader("token", ajaxData.token);
+    xhr.setRequestHeader("client", ajaxData.client);
+    xhr.send(convertData(ajaxData.data));
+    xhr.onreadystatechange = function () {
+      if (xhr.readyState == 4) {
+        if (xhr.status == 200) {
+          ajaxData.success(xhr.response)
+        } else {
+          ajaxData.error()
+        }
+      }
+    }
+  }
+
+  function createxmlHttpRequest() {
+    if (window.ActiveXObject) {
+      return new ActiveXObject("Microsoft.XMLHTTP");
+    } else if (window.XMLHttpRequest) {
+      return new XMLHttpRequest();
+    }
+  }
+
+  function convertData(data) {
+    if (typeof data === 'object') {
+      var convertResult = "";
+      for (var c in data) {
+        convertResult += c + "=" + data[c] + "&";
+      }
+      convertResult = convertResult.substring(0, convertResult.length - 1)
+      return convertResult;
+    } else {
+      return data;
+    }
+  }
+</script>
 </body>
 </html>

@@ -38,7 +38,7 @@ public class PayService {
 
     public Result createPrepayOrder(OrderDTO orderDTO
     ){
-        if(!orderDTO.isApp()){
+        if(orderDTO.getPayMethod()== Order.PayMethodEnum.WXJS.getKey()){
             String openid = orderDTO.getOpenId();
             if(StringUtils.isEmpty(openid)){
                 return Result.fail("请微信登录",401);

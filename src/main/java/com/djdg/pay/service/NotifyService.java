@@ -39,7 +39,7 @@ public class NotifyService {
     @Autowired
     private CallbackService callbackService;
 
-    public WxPayResponseVO processWxNotification(WxNotificationDTO notification, String payMethod, String businessAppId) {
+    public WxPayResponseVO processWxNotification(WxNotificationDTO notification, String businessAppId) {
         Config paymentConfig = configRepository.findByBusinessAppId(businessAppId);
         SortedMap<String, String> map = notification.getNotify_params();
         String log = JSON.toJSONString(map);
@@ -52,7 +52,7 @@ public class NotifyService {
                 return response;
             }
             if (StringUtils.equals(notification.getReturn_code(), WechatUtil.SUCCESS)) {
-                processOrder(notification, log, paymentConfig.getCallbackUrl(), payMethod);
+                processOrder(notification, log, paymentConfig.getCallbackUrl());
                 response.setReturn_code(WechatUtil.SUCCESS);
             } else {
                 logger.error("get failed message from wxpay:" + notification.getReturn_msg());
@@ -66,9 +66,10 @@ public class NotifyService {
 
     }
 
-    private void processOrder(WxNotificationDTO notification, String log, String callbackUrl, String payMethod) {
+    private void processOrder(WxNotificationDTO notification, String log, String callbackUrl) {
         String orderNo = notification.getOut_trade_no();
         Order order = orderRepository.findByOrderNo(orderNo);
+        int payMethod = order.getPayMethod();
         if(order == null) {
             logger.error("回调商户订单号找不到对应订单");
             throw new PayException( "没有对应订单");
@@ -94,12 +95,12 @@ public class NotifyService {
 
     }
 
-    private void callbackBusinessSystem(String callbackUrl, Order order, WxNotificationDTO notification, String payMethod) {
+    private void callbackBusinessSystem(String callbackUrl, Order order, WxNotificationDTO notification, int payMethod) {
         PayNotifyVO payNotifyObject = new PayNotifyVO();
         payNotifyObject.setNotify_id(order.getId());
         payNotifyObject.setOrder_id(order.getBusinessOrderId());
         payNotifyObject.setPay_time(DateUtil.formatDate(order.getUpdateTime(), DateUtil.FormatType.NON_SEPARATOR_SECOND));
-        payNotifyObject.setPay_way(Order.PayMethodEnum.getByValue(payMethod).getKey());
+        payNotifyObject.setPay_way(payMethod);
         if(notification.getCash_fee() != null) {
             payNotifyObject.setCash_fee(new BigDecimal(notification.getCash_fee()).divide(new BigDecimal(100), 2, BigDecimal.ROUND_HALF_UP).toString());
         }

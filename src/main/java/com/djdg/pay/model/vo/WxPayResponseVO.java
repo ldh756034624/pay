@@ -1,7 +1,8 @@
 package com.djdg.pay.model.vo;
 
+
+
 import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
-import com.sun.xml.internal.txw2.annotation.XmlNamespace;
 
 import javax.xml.bind.annotation.*;
 import java.io.Serializable;

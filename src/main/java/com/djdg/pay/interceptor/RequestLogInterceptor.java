@@ -40,15 +40,16 @@ public class RequestLogInterceptor implements HandlerInterceptor {
         long beginTime = System.currentTimeMillis();
         //线程绑定变量（该数据只有当前请求的线程可见）
         startTimeThreadLocal.set(beginTime);
-
-        String token = httpServletRequest.getHeader("token");
-        if (StringUtils.isNotEmpty(token)) MDC.put("token", token.substring(0, 8));
+;
         String method = httpServletRequest.getMethod();
         if (HttpMethod.OPTIONS.name().equals(method)) {
             return false;
         }
-
+        if(!(o instanceof HandlerMethod)){
+            return true;
+        }
         HandlerMethod handlerMethod = (HandlerMethod) o;
+
         PrintReqResLog printReqResLog = handlerMethod.getMethodAnnotation(PrintReqResLog.class);
 
         printReqInfo(httpServletRequest);
@@ -80,6 +81,9 @@ public class RequestLogInterceptor implements HandlerInterceptor {
         long consumeTime = endTime - beginTime;//3、消耗的时间
         if (consumeTime > consumeMaxTime) {//此处认为处理时间超过500毫秒的请求为慢请求
             logger.info("lowPerformance: " + consumeTime + ", url: " + httpServletRequest.getRequestURL());
+        }
+        if(!(o instanceof HandlerMethod)){
+            return ;
         }
         HandlerMethod handlerMethod = (HandlerMethod) o;
         PrintReqResLog printReqResLog = handlerMethod.getMethodAnnotation(PrintReqResLog.class);
@@ -160,11 +164,14 @@ public class RequestLogInterceptor implements HandlerInterceptor {
      * description: 打印响应参数
      */
     private void printResResult(HttpServletResponse response) throws UnsupportedEncodingException {
-        CustomServletResponseWrapper customServletResponseWrapper = (CustomServletResponseWrapper) response;
-        String responseStr = new String(customServletResponseWrapper.toByteArray(), response.getCharacterEncoding());
-        logger.info("response content: " + responseStr);
-        logger.info("---------------------------------------------");
-        logger.info("");
+        if(response instanceof CustomServletResponseWrapper){
+            CustomServletResponseWrapper customServletResponseWrapper = (CustomServletResponseWrapper) response;
+            String responseStr = new String(customServletResponseWrapper.toByteArray(), response.getCharacterEncoding());
+            logger.info("response content: " + responseStr);
+            logger.info("---------------------------------------------");
+            logger.info("");
+        }
+
 
     }
 
