@@ -27,7 +27,7 @@ public class HtmlController {
 
     @GetMapping("/toPay")
     @PrintReqResLog()
-    public String toPay(@RequestParam(name = "prepayId") Long orderId,
+    public String toPay(@RequestParam(name = "payOrderId") Long orderId,
                         @RequestParam(name = "businessAppId") String businessAppId,
                         @RequestParam(name = "businessOrderId") String businessOrderId) {
         payService.checkOrder(orderId, businessOrderId, businessAppId);
