@@ -22,8 +22,7 @@
 </head>
 <body>
 <div class="box" id="box">
-  欢迎来到微信支付
-  跳转中... ...
+  支付中... ...
 </div>
 <script src="https://res.wx.qq.com/open/js/jweixin-1.2.0.js"></script>
 <script type="text/javascript">
@@ -33,7 +32,7 @@
   // 解析查询参数
   if (path || true) {
     var pairs = path.split("&");
-    var args = {}
+    var args = {} // 参数对象
     for (var i = 0; i < pairs.length; i++) {
       var pos = pairs[i].indexOf('=');
       if (pos == -1) {
@@ -43,10 +42,9 @@
       var value = pairs[i].substring(pos + 1);
       args[argname] = unescape(value);
     }
-    console.log('args', args)
     ajax({
       type: "GET",
-      url: "/h9/pay/getPrepay?orderId=" + args.orderId,
+      url: "/h9/pay/getPrepay?payOrderId=" + args.payOrderId,
       dataType: "json",
 //      data: JSON.stringify({"orderId": 1}),
 //      token: args.token,
@@ -55,9 +53,7 @@
         console.log('发送请求')
       },
       success: function (res) {
-        console.log('后台返回config')
         if (res.code === 0) {
-          console.log('res.data', res.data)
           wxPay(res.data)
         }
       },
@@ -88,12 +84,10 @@
         signType: config.signType, // 签名方式，默认为'SHA1'，使用新版支付需传入'MD5'
         paySign: config.paySign, // 支付签名
         success: function (res) {
-          alert('支付成功')
-          var base = new Base64
-//          location.replace(url + rcmurl);
+          location.replace(args.callback)
         },
         fail: function () {
-            alert('失败')
+          alert('支付失败')
         }
       });
     });
