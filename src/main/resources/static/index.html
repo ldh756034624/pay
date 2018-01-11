@@ -43,6 +43,7 @@
       var value = pairs[i].substring(pos + 1);
       args[argname] = unescape(value);
     }
+    console.log('args', args)
     ajax({
       type: "GET",
       url: "/h9/pay/getPrepay?orderId=" + args.orderId,
@@ -70,13 +71,6 @@
 
   // 微信支付
   function wxPay(config) {
-    alert('执行微信支付')
-    console.log('wxconfig', {
-      appId: config.appId,
-      timestamp: config.timestamp,
-      nonceStr: config.nonceStr,
-      signature: config.paySign,
-    })
     wx.config({
       debug: false,
       appId: config.appId,
@@ -87,7 +81,6 @@
     })
 
     wx.ready(function () {
-      alert('调取微信支付')
       wx.chooseWXPay({
         timestamp: config.timestamp, // 支付签名时间戳，注意微信jssdk中的所有使用timestamp字段均为小写。但最新版的支付后台生成签名使用的timeStamp字段名需大写其中的S字符
         nonceStr: config.nonceStr, // 支付签名随机串，不长于 32 位
@@ -95,12 +88,9 @@
         signType: config.signType, // 签名方式，默认为'SHA1'，使用新版支付需传入'MD5'
         paySign: config.paySign, // 支付签名
         success: function (res) {
-//          let rcmurl = "/ja/memberbao/v1/pay/return/" + self.$route.query.appId + '/' + self.$route.query.payType + '?orderId=' + self.$route.query.orderId;
-//          self.loading.msg = "支付中...";
-//          self.loading.show = true;
-//          // window.location.href = url + rcmurl;
-//          location.replace(url + rcmurl);
           alert('支付成功')
+          var base = new Base64
+//          location.replace(url + rcmurl);
         },
         fail: function () {
             alert('失败')
