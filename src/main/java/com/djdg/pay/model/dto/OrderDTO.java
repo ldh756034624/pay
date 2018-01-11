@@ -19,8 +19,6 @@ public class OrderDTO {
 
     private String openId ="";
     @NotBlank(message = "请传入订单号")
-    private String orderNo = "";
-    @NotBlank(message = "请传入业务订单id")
     private String businessOrderId  = "" ;
     @NotNull(message = "请传入支付金额")
     private BigDecimal totalAmount = new BigDecimal(0);

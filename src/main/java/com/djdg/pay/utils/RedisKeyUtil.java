@@ -1,4 +1,4 @@
-package com.djdg.pay.common;
+package com.djdg.pay.utils;
 
 /**
  * @Description: redis key
@@ -14,4 +14,8 @@ public class RedisKeyUtil {
         return "common:pay:order:notify:times:" + businessAppId + ":" + orderId;
     }
 
+    /** 订单自增序列号 */
+    public static String getOrderSNKey() {
+        return "h9:pay:order:sn";
+    }
 }

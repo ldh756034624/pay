@@ -1,6 +1,7 @@
 package com.djdg.pay.handler;
 
 
+import com.djdg.pay.common.PayException;
 import com.djdg.pay.common.Result;
 import com.djdg.pay.common.ServiceException;
 import com.djdg.pay.service.MailService;
@@ -45,6 +46,10 @@ public class GlobalExceptionHandler {
         if (e instanceof MethodArgumentTypeMismatchException) {
             logger.info(e.getMessage(),e);
             return new Result(1, "请传入正确的参数," + e.getMessage());
+        }
+        if (e instanceof PayException) {
+            logger.info(e.getMessage(),e);
+            return new Result(1, e.getMessage());
         }
 
         if (e instanceof HttpRequestMethodNotSupportedException) {

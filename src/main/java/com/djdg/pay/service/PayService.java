@@ -1,5 +1,7 @@
 package com.djdg.pay.service;
 
+import com.djdg.pay.common.PayException;
+import com.djdg.pay.common.RedisBean;
 import com.djdg.pay.common.Result;
 import com.djdg.pay.db.entity.Config;
 import com.djdg.pay.db.entity.Order;
@@ -10,12 +12,17 @@ import com.djdg.pay.model.dto.OrderVo;
 import com.djdg.pay.model.dto.PrepayDTO;
 import com.djdg.pay.model.vo.WxPrepayInfo;
 import com.djdg.pay.model.vo.WxPrepayVo;
+import com.djdg.pay.utils.DateUtil;
+import com.djdg.pay.utils.RedisKeyUtil;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.math.BigDecimal;
+import java.util.Date;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -29,12 +36,16 @@ import java.util.concurrent.ConcurrentHashMap;
 @Service
 public class PayService {
 
+    private Logger logger = LoggerFactory.getLogger(PayService.class);
+
     @Resource
     private ConfigRepository configRepository;
     @Resource
     private OrderRepository orderRepository;
     @Resource
     private WechatService wechatService;
+    @Resource
+    private RedisBean redisBean;
 
 
     public Result createPrepayOrder(OrderDTO orderDTO
@@ -45,12 +56,13 @@ public class PayService {
                 return Result.fail("请微信登录",401);
             }
         }
-        Order order = orderRepository.findByOrderNo(orderDTO.getOrderNo());
+        Order order = orderRepository.findFirstByBusinessOrderIdOrderByCreateTimeDesc(orderDTO.getBusinessOrderId());
         if(order == null){
             order = new Order();
+            // 订单号
+            order.setOrderNo(generateOrderNo());
             order.setBusinessAppId(orderDTO.getBusinessAppId());
             order.setBusinessOrderId(orderDTO.getBusinessOrderId());
-            order.setOrderNo(orderDTO.getOrderNo());
             order.setOpenId(orderDTO.getOpenId());
             order.setTotalAmount(orderDTO.getTotalAmount());
             order.setPayStatus(Order.OrderPayStatus.UN_PAY.getValue());
@@ -81,6 +93,25 @@ public class PayService {
         return Result.success(wxPrepayInfo);
     }
 
+    public void checkOrder(Long orderId, String businessOrderId, String businessAppId) {
+        Order order = orderRepository.findOne(orderId);
+        if(order == null) {
+            throw new PayException("订单不存在");
+        }
+        if(!order.getBusinessAppId().equals(businessAppId)
+                || !order.getBusinessOrderId().equals(businessOrderId)) {
+            logger.error("预支付订单号错误: businessAppId或businessOrderId错误");
+            throw new PayException("预支付订单号错误");
+        }
+        if(order.getPayStatus() != Order.OrderPayStatus.UN_PAY.getValue()) {
+            throw new PayException("非待支付订单");
+        }
+    }
+
+    private String generateOrderNo() {
+        return DateUtil.formatDate(new Date(), DateUtil.FormatType.NON_SEPARATOR_SECOND).concat(redisBean.getValueOps().increment(RedisKeyUtil.getOrderSNKey(), 1L).toString());
+    }
+
     private PrepayDTO getPrepayDTO(Order order, Config config) {
         PrepayDTO prepayDTO = new PrepayDTO();
         prepayDTO.setAppid(config.getAppId());
@@ -97,7 +128,6 @@ public class PayService {
         if(!isApp){
             prepayDTO.setOpenid(openId);
         }
-        //TODO 更改微信订单号
         prepayDTO.setOut_trade_no(order.getOrderNo());
         int amount = order.getTotalAmount().multiply(new BigDecimal("100")).intValue();
         prepayDTO.setTotal_fee(String.valueOf(amount));
