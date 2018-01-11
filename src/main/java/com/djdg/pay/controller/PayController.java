@@ -32,8 +32,8 @@ public class PayController {
 
 
     @GetMapping("getPrepay")
-    public Result getPrepay(@RequestParam  Long orderId){
-        return payService.initWxOrder(orderId);
+    public Result getPrepay(@RequestParam  Long payOrderId){
+        return payService.initWxOrder(payOrderId);
     }
 
 

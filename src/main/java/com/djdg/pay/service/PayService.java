@@ -56,7 +56,7 @@ public class PayService {
                 return Result.fail("请微信登录",401);
             }
         }
-        Order order = orderRepository.findFirstByBusinessOrderIdOrderByCreateTimeDesc(orderDTO.getBusinessOrderId());
+        Order order = orderRepository.findFirstByBusinessAppIdAndBusinessOrderIdOrderByCreateTimeDesc(orderDTO.getBusinessAppId(), orderDTO.getBusinessOrderId());
         if(order == null){
             order = new Order();
             // 订单号

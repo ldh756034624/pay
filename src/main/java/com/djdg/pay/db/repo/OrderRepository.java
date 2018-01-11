@@ -16,6 +16,6 @@ public interface OrderRepository extends BaseRepository<Order> {
 
     Order findByOrderNo(String orderNo);
 
-    Order findFirstByBusinessOrderIdOrderByCreateTimeDesc(String businessOrderId);
+    Order findFirstByBusinessAppIdAndBusinessOrderIdOrderByCreateTimeDesc(String businessAppId, String businessOrderId);
 
 }
