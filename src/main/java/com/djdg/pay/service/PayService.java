@@ -60,7 +60,7 @@ public class PayService {
         if(order == null){
             order = new Order();
             // 订单号
-            order.setOrderNo(generateOrderNo());
+            order.setOrderNo(generateOrderNo(orderDTO.getBusinessAppId()));
             order.setBusinessAppId(orderDTO.getBusinessAppId());
             order.setBusinessOrderId(orderDTO.getBusinessOrderId());
             order.setOpenId(orderDTO.getOpenId());
@@ -108,9 +108,13 @@ public class PayService {
         }
     }
 
-    private String generateOrderNo() {
-        return DateUtil.formatDate(new Date(), DateUtil.FormatType.NON_SEPARATOR_SECOND).concat(redisBean.getValueOps().increment(RedisKeyUtil.getOrderSNKey(), 1L).toString());
+    private String generateOrderNo(String businessAppId) {
+        String orderNo = DateUtil.formatDate(new Date(), DateUtil.FormatType.NON_SEPARATOR_SECOND).concat(redisBean.getValueOps().increment(RedisKeyUtil.getOrderSNKey(), 1L).toString());
+        String businessName = businessAppId.substring(5);
+        businessName = businessName.substring(0, businessName.length()-5);
+        return businessName + orderNo;
     }
+
 
     private PrepayDTO getPrepayDTO(Order order, Config config) {
         PrepayDTO prepayDTO = new PrepayDTO();
