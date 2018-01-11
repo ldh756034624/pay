@@ -27,7 +27,7 @@
 <script src="https://res.wx.qq.com/open/js/jweixin-1.2.0.js"></script>
 <script type="text/javascript">
 
-  var path = decodeURI(window.location.search.substring(1))
+  var path = decodeURIComponent(window.location.search.substring(1))
 
   // 解析查询参数
   if (path || true) {
