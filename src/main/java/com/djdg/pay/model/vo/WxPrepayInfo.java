@@ -63,32 +63,19 @@ public class WxPrepayInfo  {
     public String sign(String key){
 
 
-//        StringBuffer singStr = new StringBuffer();
-//        singStr.append("appid=").append(getAppId());
-//        singStr.append("&nonceStr=").append(getNonceStr());
-//        singStr.append("&package=").append(getPackageParam());
-//        singStr.append("&signType=").append("MD5");
-//        singStr.append("&timeStamp=").append(getTimestamp());
-//        singStr.append("&key=").append(key);
-        String sign = getArgs(appId, key, prepayId, packageParam, nonceStr, timestamp);
-        System.out.println("singStr = [" + sign.toString() + "]");
-        paySign = MD5Util.getMD5(sign.toString()).toUpperCase();
+        StringBuffer singStr = new StringBuffer();
+        singStr.append("appId=").append(getAppId());
+        singStr.append("&nonceStr=").append(getNonceStr());
+        singStr.append("&package=").append(getPackageParam());
+        singStr.append("&signType=").append("MD5");
+        singStr.append("&timeStamp=").append(getTimestamp());
+        singStr.append("&key=").append(key);
+        System.out.println("singStr = [" + singStr.toString() + "]");
+        paySign = MD5Util.getMD5(singStr.toString()).toUpperCase();
         System.out.println("sign = [" + paySign + "]");
         return paySign;
     }
 
-
-
-    public static String getArgs(String appId,String apikey, String prepayId, String packageParam, String nonceStr, long timeStamp) {
-        StringBuffer args = new StringBuffer()
-                .append("appId=").append(appId)
-                .append("&nonceStr=").append(nonceStr)
-                .append("&package=").append(packageParam)
-                .append("&signType=MD5")
-                .append("&timeStamp=").append(timeStamp)
-                .append("&key=").append(apikey);
-        return args.toString();
-    }
 
 
 
