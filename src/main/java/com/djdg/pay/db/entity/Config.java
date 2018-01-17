@@ -1,6 +1,8 @@
 package com.djdg.pay.db.entity;
 
+import com.alibaba.fastjson.JSONObject;
 import com.djdg.pay.db.BaseEntity;
+import com.djdg.pay.model.dto.ClientConfig;
 import lombok.Data;
 import org.hibernate.annotations.DynamicInsert;
 
@@ -55,11 +57,24 @@ public class Config extends BaseEntity {
 
     @Column(name = "status", columnDefinition = "SMALLINT DEFAULT 0 COMMENT '状态'", nullable = false)
     protected Integer status;
+    
+    
+    @Column(name = "client_config", nullable = false, columnDefinition = "varchar(1536) default '' COMMENT '客户端配置'")
+    private String clientConfig;
 
-    @Column(name = "client_app_id", nullable = false, columnDefinition = "varchar(64) default '' COMMENT 'android ios 支付appid'")
-    private String clientAppId;
 
+    public ClientConfig getClientConfig() {
+        try {
+            ClientConfig clientConfig = JSONObject.parseObject(this.clientConfig, ClientConfig.class);
+            return clientConfig;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 
+    public void setClientConfig(ClientConfig clientConfig) {
 
-
+        this.clientConfig = JSONObject.toJSONString(clientConfig);;
+    }
 }

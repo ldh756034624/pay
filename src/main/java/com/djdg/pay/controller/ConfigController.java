@@ -1,10 +1,9 @@
 package com.djdg.pay.controller;
 
 import com.djdg.pay.common.Result;
-import com.djdg.pay.db.entity.Config;
 import com.djdg.pay.model.dto.ConfigDto;
 import com.djdg.pay.service.ConfigService;
-import org.hibernate.validator.constraints.NotBlank;
+
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 

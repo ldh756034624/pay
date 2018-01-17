@@ -43,6 +43,8 @@ public class ConfigDto {
 
     private String clientAppId = "";
 
+    private ClientConfig clientConfig;
+
 
 
 

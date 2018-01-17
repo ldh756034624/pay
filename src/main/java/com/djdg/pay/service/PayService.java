@@ -120,28 +120,29 @@ public class PayService {
         PrepayDTO prepayDTO = new PrepayDTO();
         String openId = order.getOpenId();
         boolean isApp = StringUtils.isEmpty(openId);
-        if(!isApp){
-            prepayDTO.setAppid(config.getAppId());
-        }else {
-            prepayDTO.setAppid(config.getClientAppId());
-        }
-
         prepayDTO.setBody(config.getBody());
-
         Boolean enableCreditCart = config.getEnableCreditCart();
         if (!enableCreditCart) prepayDTO.setLimit_pay("no_credit");
-
-        prepayDTO.setMch_id(config.getMchId());
-        prepayDTO.setNotify_url(config.getNotifyUrl());
-
         if(!isApp){
+            prepayDTO.setAppid(config.getAppId());
+            prepayDTO.setMch_id(config.getMchId());
             prepayDTO.setOpenid(openId);
+        }else {
+            prepayDTO.setAppid(config.getClientConfig().getAppId());
+            prepayDTO.setMch_id(config.getClientConfig().getMchId());
+
         }
+        prepayDTO.setNotify_url(config.getNotifyUrl());
         prepayDTO.setOut_trade_no(order.getOrderNo());
         int amount = order.getTotalAmount().multiply(new BigDecimal("100")).intValue();
         prepayDTO.setTotal_fee(String.valueOf(amount));
         prepayDTO.setTrade_type(isApp?"APP":"JSAPI");
-        prepayDTO.sign(config.getApiKey());
+        if(!isApp){
+            prepayDTO.sign(config.getApiKey());
+        }else{
+            prepayDTO.sign(config.getClientConfig().getApiKey());
+        }
+
         return prepayDTO;
     }
 
