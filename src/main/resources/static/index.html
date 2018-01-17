@@ -86,8 +86,9 @@
         success: function (res) {
           location.replace(args.callback)
         },
-        fail: function () {
+        cancel: function () {
           alert('支付失败')
+          location.replace(args.callbackFail)
         }
       });
     });
