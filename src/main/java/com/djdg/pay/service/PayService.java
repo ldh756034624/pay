@@ -118,7 +118,14 @@ public class PayService {
 
     private PrepayDTO getPrepayDTO(Order order, Config config) {
         PrepayDTO prepayDTO = new PrepayDTO();
-        prepayDTO.setAppid(config.getAppId());
+        String openId = order.getOpenId();
+        boolean isApp = StringUtils.isEmpty(openId);
+        if(!isApp){
+            prepayDTO.setAppid(config.getAppId());
+        }else {
+            prepayDTO.setAppid(config.getClientAppId());
+        }
+
         prepayDTO.setBody(config.getBody());
 
         Boolean enableCreditCart = config.getEnableCreditCart();
@@ -127,8 +134,6 @@ public class PayService {
         prepayDTO.setMch_id(config.getMchId());
         prepayDTO.setNotify_url(config.getNotifyUrl());
 
-        String openId = order.getOpenId();
-        boolean isApp = StringUtils.isEmpty(openId);
         if(!isApp){
             prepayDTO.setOpenid(openId);
         }

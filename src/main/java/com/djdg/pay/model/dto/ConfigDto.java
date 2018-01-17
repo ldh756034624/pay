@@ -41,6 +41,8 @@ public class ConfigDto {
     @NotEmpty(message = "业务appId")
     private String businessAppId= "";
 
+    private String clientAppId = "";
+
 
 
 

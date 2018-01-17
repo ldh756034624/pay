@@ -56,5 +56,10 @@ public class Config extends BaseEntity {
     @Column(name = "status", columnDefinition = "SMALLINT DEFAULT 0 COMMENT '状态'", nullable = false)
     protected Integer status;
 
+    @Column(name = "client_app_id", nullable = false, columnDefinition = "varchar(64) default '' COMMENT 'android ios 支付appid'")
+    private String clientAppId;
+
+
+
 
 }
