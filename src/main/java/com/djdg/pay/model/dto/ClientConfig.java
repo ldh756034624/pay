@@ -18,6 +18,5 @@ public class ClientConfig {
     private String appSecret;
     private String mchId;
     private String apiKey;
-    private String payApiKey;
 
 }
