@@ -3,6 +3,7 @@ package com.djdg.pay.service;
 import com.djdg.pay.common.Result;
 import com.djdg.pay.db.entity.Config;
 import com.djdg.pay.db.repo.ConfigRepository;
+import com.djdg.pay.model.dto.ClientConfig;
 import com.djdg.pay.model.dto.ConfigDto;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Component;
@@ -28,9 +29,17 @@ public class ConfigService {
         if (config == null) {
             config = new Config();
             BeanUtils.copyProperties(configDto,config);
+            ClientConfig clientConfig = configDto.getClientConfig();
+            if (clientConfig != null) {
+                config.setClientConfig(clientConfig);
+            }
             config = configRepository.saveAndFlush(config);
         }else{
             BeanUtils.copyProperties(configDto,config,"id");
+            ClientConfig clientConfig = configDto.getClientConfig();
+            if (clientConfig != null) {
+                config.setClientConfig(clientConfig);
+            }
             config = configRepository.saveAndFlush(config);
         }
         return Result.success(config);
