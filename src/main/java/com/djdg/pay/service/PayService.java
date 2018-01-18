@@ -89,6 +89,13 @@ public class PayService {
         PrepayDTO prepayDTO = getPrepayDTO(order, config);
         WxPrepayVo wxPrepayVo = wechatService.getOrder(prepayDTO);
         WxPrepayInfo wxPrepayInfo = new WxPrepayInfo(wxPrepayVo);
+        String openId = order.getOpenId();
+        boolean isApp = StringUtils.isEmpty(openId);
+        if(isApp){
+            wxPrepayInfo.setPackageParam("Sign=WXPay");
+        }
+
+
         wxPrepayInfo.sign(config.getApiKey());
         return Result.success(wxPrepayInfo);
     }

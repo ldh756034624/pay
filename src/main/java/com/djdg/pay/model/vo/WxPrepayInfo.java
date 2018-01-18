@@ -51,7 +51,6 @@ public class WxPrepayInfo  {
         signType = "MD5";
         timestamp = genTimeStamp();
         prepayId = wxPrepayVo.getPrepayId();
-
     }
 
 
@@ -61,7 +60,6 @@ public class WxPrepayInfo  {
 
 
     public String sign(String key){
-
 
         StringBuffer singStr = new StringBuffer();
         singStr.append("appId=").append(getAppId());
