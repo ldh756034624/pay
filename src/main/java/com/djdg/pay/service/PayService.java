@@ -93,10 +93,13 @@ public class PayService {
         boolean isApp = StringUtils.isEmpty(openId);
         if(isApp){
             wxPrepayInfo.setPackageParam("Sign=WXPay");
+            wxPrepayInfo.appSign(config.getClientConfig().getApiKey());
+        }else{
+            wxPrepayInfo.sign(config.getApiKey());
         }
 
 
-        wxPrepayInfo.sign(config.getApiKey());
+
         return Result.success(wxPrepayInfo);
     }
 

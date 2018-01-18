@@ -74,6 +74,21 @@ public class WxPrepayInfo  {
         return paySign;
     }
 
+    public String appSign(String key){
+        StringBuffer singStr = new StringBuffer();
+        singStr.append("appid=").append(getAppId());
+        singStr.append("&noncestr=").append(getNonceStr());
+        singStr.append("&package=").append(getPackageParam());
+        singStr.append("&partnerid=").append(getPartnerId());
+        singStr.append("&prepayid=").append(getPrepayId());
+        singStr.append("&timestamp=").append(getTimestamp());
+        singStr.append("&key=").append(key);
+        System.out.println("singStr = [" + singStr.toString() + "]");
+        paySign = MD5Util.getMD5(singStr.toString()).toUpperCase();
+        System.out.println("sign = [" + paySign + "]");
+        return paySign;
+    }
+
 
 
 
