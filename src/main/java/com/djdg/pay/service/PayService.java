@@ -36,7 +36,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @Service
 public class PayService {
 
-    private Logger logger = LoggerFactory.getLogger(PayService.class);
+    public static Logger logger = LoggerFactory.getLogger(PayService.class);
 
     @Resource
     private ConfigRepository configRepository;

@@ -1,6 +1,7 @@
 package com.djdg.pay.model.vo;
 
 import com.djdg.pay.model.dto.PrepayDTO;
+import com.djdg.pay.service.PayService;
 import com.djdg.pay.utils.MD5Util;
 import com.djdg.pay.utils.WechatUtil;
 import lombok.Data;
@@ -68,9 +69,9 @@ public class WxPrepayInfo  {
         singStr.append("&signType=").append("MD5");
         singStr.append("&timeStamp=").append(getTimestamp());
         singStr.append("&key=").append(key);
-        System.out.println("singStr = [" + singStr.toString() + "]");
+        PayService.logger.debug("singStr = [" + singStr.toString() + "]");
         paySign = MD5Util.getMD5(singStr.toString()).toUpperCase();
-        System.out.println("sign = [" + paySign + "]");
+        PayService.logger.debug("singStr = [" + paySign + "]");
         return paySign;
     }
 
@@ -83,9 +84,9 @@ public class WxPrepayInfo  {
         singStr.append("&prepayid=").append(getPrepayId());
         singStr.append("&timestamp=").append(getTimestamp());
         singStr.append("&key=").append(key);
-        System.out.println("singStr = [" + singStr.toString() + "]");
+        PayService.logger.debug("singStr = [" + singStr.toString() + "]");
         paySign = MD5Util.getMD5(singStr.toString()).toUpperCase();
-        System.out.println("sign = [" + paySign + "]");
+        PayService.logger.debug("singStr = [" + paySign + "]");
         return paySign;
     }
 
