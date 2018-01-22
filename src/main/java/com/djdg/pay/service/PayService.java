@@ -305,10 +305,11 @@ public class PayService {
 
         } catch (Exception e) {
             logger.info(e.getMessage(), e);
+            return Result.fail();
         }finally {
             try {
                 response.close();
-            } catch (IOException e) {
+            } catch (Exception e) {
                 logger.info("关闭流 response 失败");
                 logger.info(e.getMessage(),e);
             }finally {
@@ -317,14 +318,13 @@ public class PayService {
 
             try {
                 httpclient.close();
-            } catch (IOException e) {
+            } catch (Exception e) {
                 logger.info("关闭httpClient 失败");
                 logger.info(e.getMessage(),e);
             }finally {
                 httpclient = null;
             }
         }
-        return Result.fail();
     }
 
     public static void main(String[] args) throws JAXBException {
