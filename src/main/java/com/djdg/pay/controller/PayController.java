@@ -3,10 +3,12 @@ package com.djdg.pay.controller;
 import com.alibaba.fastjson.JSONObject;
 import com.djdg.pay.common.Result;
 import com.djdg.pay.model.dto.OrderDTO;
+import com.djdg.pay.model.dto.RefundDTO;
 import com.djdg.pay.service.PayService;
 import org.omg.CORBA.ORB;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 
@@ -37,6 +39,13 @@ public class PayController {
     }
 
 
+    /**
+     * description: 退款
+     */
+    @PostMapping("/order/refund")
+    public Result refundOrder(@RequestBody RefundDTO refundDTO){
+        return payService.refundOrder(refundDTO);
+    }
 
 
 
