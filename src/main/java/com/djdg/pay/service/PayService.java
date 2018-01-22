@@ -305,7 +305,7 @@ public class PayService {
 
         } catch (Exception e) {
             logger.info(e.getMessage(), e);
-            return Result.fail();
+            return Result.fail("退款失败");
         }finally {
             try {
                 response.close();
