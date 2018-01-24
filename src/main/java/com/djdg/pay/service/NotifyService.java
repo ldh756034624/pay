@@ -46,11 +46,11 @@ public class NotifyService {
         logger.info("notify params from wx : " + log);
         WxPayResponseVO response = new WxPayResponseVO();
         try {
-            if (!WechatUtil.verifySign(paymentConfig, map)) {
-                logger.info("wxPayResponse: verifySign failed, return false ");
-                response.setReturn_code(WechatUtil.FAILED);
-                return response;
-            }
+//            if (!WechatUtil.verifySign(paymentConfig, map)) {
+//                logger.info("wxPayResponse: verifySign failed, return false ");
+//                response.setReturn_code(WechatUtil.FAILED);
+//                return response;
+//            }
             if (StringUtils.equals(notification.getReturn_code(), WechatUtil.SUCCESS)) {
                 processOrder(notification, log, paymentConfig.getCallbackUrl());
                 response.setReturn_code(WechatUtil.SUCCESS);
