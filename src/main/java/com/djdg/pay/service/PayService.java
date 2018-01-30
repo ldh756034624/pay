@@ -111,7 +111,7 @@ public class PayService {
         WxPrepayVo wxPrepayVo = wechatService.getOrder(prepayDTO);
         WxPrepayInfo wxPrepayInfo = new WxPrepayInfo(wxPrepayVo);
         String openId = order.getOpenId();
-        boolean isApp = StringUtils.isEmpty(openId);
+        boolean isApp =  order.getPayMethod() == Order.PayMethodEnum.WX.getKey();
         if (isApp) {
             wxPrepayInfo.setPackageParam("Sign=WXPay");
             wxPrepayInfo.appSign(config.getClientConfig().getApiKey());
