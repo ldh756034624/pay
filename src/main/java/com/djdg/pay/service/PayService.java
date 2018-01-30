@@ -84,9 +84,11 @@ public class PayService {
             order.setBusinessOrderId(orderDTO.getBusinessOrderId());
             order.setOpenId(orderDTO.getOpenId());
             order.setTotalAmount(orderDTO.getTotalAmount());
+            order.setPayMethod(orderDTO.getPayMethod());
             order.setPayStatus(Order.OrderPayStatus.UN_PAY.getValue());
             order = orderRepository.saveAndFlush(order);
         } else {
+            order.setPayMethod(orderDTO.getPayMethod());
             order.setOpenId(orderDTO.getOpenId());
             order = orderRepository.saveAndFlush(order);
         }
