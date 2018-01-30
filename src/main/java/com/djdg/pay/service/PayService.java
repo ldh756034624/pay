@@ -147,7 +147,8 @@ public class PayService {
     private PrepayDTO getPrepayDTO(Order order, Config config) {
         PrepayDTO prepayDTO = new PrepayDTO();
         String openId = order.getOpenId();
-        boolean isApp = StringUtils.isEmpty(openId);
+
+        boolean isApp = order.getPayMethod() == Order.PayMethodEnum.WX.getKey();
         prepayDTO.setBody(config.getBody());
         Boolean enableCreditCart = config.getEnableCreditCart();
         if (!enableCreditCart) prepayDTO.setLimit_pay("no_credit");
@@ -242,9 +243,18 @@ public class PayService {
 
     private Result refund(RefundDTO refundDTO, Order order) {
 
+        Config config = getConfig(order.getBusinessAppId());
 
-        String mchId = refundDTO.getMchId();
-        String appId = refundDTO.getAppId();
+        String mchId = "";
+        String appId = "";
+        if(order.getPayMethod() == Order.PayMethodEnum.WX.getKey()){
+             mchId = config.getMchId();
+             appId = config.getAppId();
+        }else{
+             mchId = config.getClientConfig().getMchId();
+             appId = config.getClientConfig().getAppId();
+        }
+
         String url = "https://api.mch.weixin.qq.com/secapi/pay/refund";
 
         TreeMap<String, Object> params = new TreeMap<>();
@@ -271,6 +281,7 @@ public class PayService {
 //            String certPath = "D:\\资料\\红包\\cert\\apiclient_cert.p12";
 
             InputStream is = new ByteArrayInputStream(refundDTO.getCertByte());
+
 //            InputStream is = new FileInputStream(certPath);
             //指定PKCS12的密码(商户ID)
             keyStore.load(is, mchId.toCharArray());
