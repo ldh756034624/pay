@@ -28,7 +28,6 @@
 <script type="text/javascript">
 
   var path = decodeURIComponent(window.location.search.substring(1))
-
   // 解析查询参数
   if (path || true) {
     var pairs = path.split("&");
@@ -42,6 +41,7 @@
       var value = pairs[i].substring(pos + 1);
       args[argname] = unescape(value);
     }
+    console.log(args)
     ajax({
       type: "GET",
       url: "/h9/pay/getPrepay?payOrderId=" + args.payOrderId,
@@ -84,6 +84,9 @@
         signType: config.signType, // 签名方式，默认为'SHA1'，使用新版支付需传入'MD5'
         paySign: config.paySign, // 支付签名
         success: function (res) {
+          if (args.money) {
+            args.callback = args.callback + '&money=' + args.money + '&goodsName=' + args.goodsName
+          }
           location.replace(args.callback)
         },
         cancel: function () {
