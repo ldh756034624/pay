@@ -10,6 +10,7 @@ import com.djdg.pay.db.entity.Order;
 import com.djdg.pay.db.repo.ConfigRepository;
 import com.djdg.pay.db.repo.OrderRepository;
 import com.djdg.pay.model.dto.*;
+import com.djdg.pay.model.vo.WxOrderListInfo;
 import com.djdg.pay.model.vo.WxPrepayInfo;
 import com.djdg.pay.model.vo.WxPrepayVo;
 import com.djdg.pay.utils.DateUtil;
@@ -40,10 +41,7 @@ import javax.xml.bind.Unmarshaller;
 import java.io.*;
 import java.math.BigDecimal;
 import java.security.KeyStore;
-import java.util.Date;
-import java.util.Set;
-import java.util.TreeMap;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * Created with IntelliJ IDEA.
@@ -360,4 +358,15 @@ public class PayService {
         System.out.println(JSONObject.toJSONString(refundResult));
     }
 
+    public Result getOrderInfoByNo(String no) {
+        Order order = orderRepository.findByTransactionId(no);
+        if(order == null){
+            return Result.fail("订单不在存");
+        }
+
+        Map<String, Object> map = new HashMap<>();
+        map.put("payInfoId", order.getBusinessOrderId());
+        map.put("wxId", order.getTransactionId());
+        return Result.success(map);
+    }
 }

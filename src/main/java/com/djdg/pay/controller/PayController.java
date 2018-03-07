@@ -26,6 +26,7 @@ public class PayController {
     @Resource
     private PayService payService;
 
+
     @PostMapping("initOrder")
     public Result createPrepayOrder(@Validated @RequestBody OrderDTO orderDTO){
         return payService.createPrepayOrder(orderDTO);
@@ -47,6 +48,14 @@ public class PayController {
         return payService.refundOrder(refundDTO);
     }
 
-
+    /**
+     * 根据微信流水查询
+     * @param no
+     * @return
+     */
+    @GetMapping("/order/info")
+    public Result getOrderInfoByNo(@RequestParam String no){
+        return payService.getOrderInfoByNo(no);
+    }
 
 }
