@@ -1,6 +1,7 @@
 package com.djdg.pay.service;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.djdg.pay.common.PayException;
 import com.djdg.pay.common.Result;
 import com.djdg.pay.db.entity.Config;
@@ -41,6 +42,7 @@ public class NotifyService {
 
     public WxPayResponseVO processWxNotification(WxNotificationDTO notification, String businessAppId) {
         Config paymentConfig = configRepository.findByBusinessAppId(businessAppId);
+        logger.info("paymentConfig : "+ JSONObject.toJSONString(paymentConfig));
         SortedMap<String, String> map = notification.getNotify_params();
         String log = JSON.toJSONString(map);
         logger.info("notify params from wx : " + log);

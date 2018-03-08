@@ -109,7 +109,7 @@ public class PayService {
         WxPrepayVo wxPrepayVo = wechatService.getOrder(prepayDTO);
         WxPrepayInfo wxPrepayInfo = new WxPrepayInfo(wxPrepayVo);
         String openId = order.getOpenId();
-        boolean isApp =  order.getPayMethod() == Order.PayMethodEnum.WX.getKey();
+        boolean isApp = order.getPayMethod() == Order.PayMethodEnum.WX.getKey();
         if (isApp) {
             wxPrepayInfo.setPackageParam("Sign=WXPay");
             wxPrepayInfo.appSign(config.getClientConfig().getApiKey());
@@ -192,12 +192,12 @@ public class PayService {
             return Result.fail("解析订单编号出错，请确认订单编号");
         }
 
-        Order order = orderRepository.findFirstByBusinessAppIdAndBusinessOrderIdOrderByCreateTimeDesc(refundDTO.getBusinessAppId(),refundDTO.getOrderId());
+        Order order = orderRepository.findFirstByBusinessAppIdAndBusinessOrderIdOrderByCreateTimeDesc(refundDTO.getBusinessAppId(), refundDTO.getOrderId());
         if (order == null) {
             return Result.fail("订单不存在");
         }
 
-        Result refundResult = refund(refundDTO,order);
+        Result refundResult = refund(refundDTO, order);
 
         return refundResult;
     }
@@ -247,12 +247,12 @@ public class PayService {
 
         String mchId = "";
         String appId = "";
-        if(order.getPayMethod() == Order.PayMethodEnum.WX.getKey()){
-             mchId = config.getMchId();
-             appId = config.getAppId();
-        }else{
-             mchId = config.getClientConfig().getMchId();
-             appId = config.getClientConfig().getAppId();
+        if (order.getPayMethod() == Order.PayMethodEnum.WX.getKey()) {
+            mchId = config.getMchId();
+            appId = config.getAppId();
+        } else {
+            mchId = config.getClientConfig().getMchId();
+            appId = config.getClientConfig().getAppId();
         }
 
         String url = "https://api.mch.weixin.qq.com/secapi/pay/refund";
@@ -262,7 +262,7 @@ public class PayService {
         params.put("mch_id", mchId);
         params.put("nonce_str", UUID.randomUUID().toString().replace("-", ""));
         params.put("out_trade_no", order.getOrderNo());
-        params.put("out_refund_no", UUID.randomUUID().toString().replace("-",""));
+        params.put("out_refund_no", UUID.randomUUID().toString().replace("-", ""));
         BigDecimal multiply = refundDTO.getTotal_fee().multiply(new BigDecimal(100));
         params.put("total_fee", multiply.intValue());
         params.put("refund_fee", multiply.intValue());
@@ -289,7 +289,7 @@ public class PayService {
             //指定TLS版本
             SSLConnectionSocketFactory sslsf = new SSLConnectionSocketFactory(sslcontext, new String[]{"TLSv1"}, null, SSLConnectionSocketFactory.BROWSER_COMPATIBLE_HOSTNAME_VERIFIER);
             //设置httpclient的SSLSocketFactory
-             httpclient = HttpClients.custom().setSSLSocketFactory(sslsf).build();
+            httpclient = HttpClients.custom().setSSLSocketFactory(sslsf).build();
             HttpPost httppost = new HttpPost(url);
             StringEntity reqEntity = new StringEntity(content, "UTF-8");
             httppost.setEntity(reqEntity);
@@ -317,13 +317,13 @@ public class PayService {
         } catch (Exception e) {
             logger.info(e.getMessage(), e);
             return Result.fail("退款失败");
-        }finally {
+        } finally {
             try {
                 response.close();
             } catch (Exception e) {
                 logger.info("关闭流 response 失败");
-                logger.info(e.getMessage(),e);
-            }finally {
+                logger.info(e.getMessage(), e);
+            } finally {
                 response = null;
             }
 
@@ -331,8 +331,8 @@ public class PayService {
                 httpclient.close();
             } catch (Exception e) {
                 logger.info("关闭httpClient 失败");
-                logger.info(e.getMessage(),e);
-            }finally {
+                logger.info(e.getMessage(), e);
+            } finally {
                 httpclient = null;
             }
         }
@@ -360,13 +360,28 @@ public class PayService {
 
     public Result getOrderInfoByNo(String no) {
         Order order = orderRepository.findByTransactionId(no);
-        if(order == null){
-            return Result.fail("订单不在存");
+        if (order == null) {
+            return Result.fail("订单不存在");
         }
 
         Map<String, Object> map = new HashMap<>();
         map.put("payInfoId", order.getBusinessOrderId());
         map.put("wxId", order.getTransactionId());
+        return Result.success(map);
+    }
+
+    public Result batchQueryByPayInfId(String ids, String bid) {
+        if (ids.endsWith("-")) {
+            ids = ids.substring(0, ids.length() - 1);
+        }
+        String[] idsArray = ids.split("-");
+
+        Map<String, String> map = new HashMap<>();
+        List<Order> orders = orderRepository.findbyPayInfoIds(bid, Arrays.asList(idsArray));
+        for(int i = 0;i<orders.size();i++) {
+            Order order = orders.get(i);
+            map.put(order.getBusinessOrderId(), order.getTransactionId());
+        }
         return Result.success(map);
     }
 }

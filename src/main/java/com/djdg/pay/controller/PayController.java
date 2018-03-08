@@ -58,4 +58,9 @@ public class PayController {
         return payService.getOrderInfoByNo(no);
     }
 
+    @GetMapping("/order/info/batch")
+    public Result batchQueryByPayInfId(@RequestParam String ids,@RequestParam String  bid){
+        return payService.batchQueryByPayInfId(ids,bid);
+    }
+
 }
