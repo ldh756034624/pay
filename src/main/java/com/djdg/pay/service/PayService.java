@@ -20,6 +20,8 @@ import com.djdg.pay.utils.RedisKeyUtil;
 import lombok.Data;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
@@ -40,7 +42,8 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 import java.io.*;
 import java.math.BigDecimal;
-import java.security.KeyStore;
+import java.security.*;
+import java.security.cert.CertificateException;
 import java.util.*;
 
 /**
@@ -247,19 +250,53 @@ public class PayService {
 
         String mchId = "";
         String appId = "";
-        if (order.getPayMethod() == Order.PayMethodEnum.WX.getKey()) {
+        if (order.getPayMethod() == Order.PayMethodEnum.WXJS.getKey()) {
             mchId = config.getMchId();
             appId = config.getAppId();
         } else {
             mchId = config.getClientConfig().getMchId();
             appId = config.getClientConfig().getAppId();
         }
+        refundDTO.setMchId(mchId);
+        refundDTO.setAppId(appId);
+        TreeMap<String, Object> params =getRefundParams(refundDTO,order) ;
+        String content = getRequestContent(params);
+        logger.info("-请求xml 内容： " + content);
+        //指定读取证书格式为PKCS12
+        CloseableHttpResponse response = null;
+        CloseableHttpClient httpclient = null;
+        try {
+            response = sendRefundRequest(refundDTO,content);
+            String result  = EntityUtils.toString(response.getEntity(), "UTF-8");
+            RefundResult refundResult = RefundResult.parseFromXML(result);
+            logger.info("-退款结果： " + JSON.toJSON(refundResult));
+            boolean refund = false;
+            if ("SUCCESS".equals(refundResult.getResult_code())) {
+                logger.info("-退款成功: ");
+                return Result.success();
+            } else {
+                logger.info("-失败原因： " + refundResult.getErr_code_des());
+                return Result.fail(refundResult.getErr_code_des());
+            }
 
-        String url = "https://api.mch.weixin.qq.com/secapi/pay/refund";
+        } catch (Exception e) {
+            logger.info(e.getMessage(), e);
+            return Result.fail("退款失败");
+        } finally {
+            close(response);
+            close(httpclient);
+        }
+    }
 
+    /**
+     * 生成请求参数
+     * @param refundDTO
+     * @return
+     */
+    public TreeMap<String, Object> getRefundParams(RefundDTO refundDTO,Order order){
         TreeMap<String, Object> params = new TreeMap<>();
-        params.put("appid", appId);
-        params.put("mch_id", mchId);
+        params.put("appid", refundDTO.getAppId());
+        params.put("mch_id", refundDTO.getMchId());
         params.put("nonce_str", UUID.randomUUID().toString().replace("-", ""));
         params.put("out_trade_no", order.getOrderNo());
         params.put("out_refund_no", UUID.randomUUID().toString().replace("-", ""));
@@ -267,74 +304,81 @@ public class PayService {
         params.put("total_fee", multiply.intValue());
         params.put("refund_fee", multiply.intValue());
         params.put("sign", getSign(params, refundDTO.getPayKey()));
+        return params;
+    }
 
-        String content = getRequestContent(params);
-        logger.info("-请求xml 内容： " + content);
-        String result = "";
-        //指定读取证书格式为PKCS12
-        CloseableHttpResponse response = null;
-        CloseableHttpClient httpclient = null;
+    /**
+     * 发送退款请求
+     * @param refundDTO
+     * @param content
+     * @return
+     * @throws CertificateException
+     * @throws UnrecoverableKeyException
+     * @throws NoSuchAlgorithmException
+     * @throws KeyStoreException
+     * @throws KeyManagementException
+     * @throws IOException
+     */
+    public CloseableHttpResponse sendRefundRequest(RefundDTO refundDTO ,String content )
+            throws CertificateException, UnrecoverableKeyException, NoSuchAlgorithmException, KeyStoreException, KeyManagementException, IOException {
+        String url = "https://api.mch.weixin.qq.com/secapi/pay/refund";
+        CloseableHttpClient httpclient = getHttpClient(refundDTO, refundDTO.getMchId());
+        HttpPost httppost = new HttpPost(url);
+        StringEntity reqEntity = new StringEntity(content, "UTF-8");
+        httppost.setEntity(reqEntity);
+        logger.info("request url: " + httppost.getRequestLine());
+        return  httpclient.execute(httppost);
+    }
+
+    /**
+     * 构建httpclient 对象
+     * @param refundDTO
+     * @param mchId
+     * @return
+     * @throws KeyStoreException
+     * @throws CertificateException
+     * @throws NoSuchAlgorithmException
+     * @throws IOException
+     * @throws UnrecoverableKeyException
+     * @throws KeyManagementException
+     */
+    public CloseableHttpClient getHttpClient(RefundDTO refundDTO, String mchId) throws KeyStoreException, CertificateException, NoSuchAlgorithmException, IOException, UnrecoverableKeyException, KeyManagementException {
+        KeyStore keyStore = KeyStore.getInstance("PKCS12");
+        //读取本机存放的PKCS12证书文件
+        InputStream is = new ByteArrayInputStream(refundDTO.getCertByte());
+        //指定PKCS12的密码(商户ID)
+        keyStore.load(is, mchId.toCharArray());
+        SSLContext sslcontext = SSLContexts.custom().loadKeyMaterial(keyStore, mchId.toCharArray()).build();
+        //指定TLS版本
+        SSLConnectionSocketFactory sslsf = new SSLConnectionSocketFactory(sslcontext, new String[]{"TLSv1"},
+                null, SSLConnectionSocketFactory.BROWSER_COMPATIBLE_HOSTNAME_VERIFIER);
+        //设置httpclient的SSLSocketFactory
+        return HttpClients.custom().setSSLSocketFactory(sslsf).build();
+    }
+
+    public void close(CloseableHttpResponse response) {
         try {
-            KeyStore keyStore = KeyStore.getInstance("PKCS12");
-            //读取本机存放的PKCS12证书文件
-//            InputStream is = this.getClass().getClassLoader().getResourceAsStream("apiclient_cert.p12");
-//            String certPath = "D:\\资料\\红包\\cert\\apiclient_cert.p12";
-
-            InputStream is = new ByteArrayInputStream(refundDTO.getCertByte());
-
-//            InputStream is = new FileInputStream(certPath);
-            //指定PKCS12的密码(商户ID)
-            keyStore.load(is, mchId.toCharArray());
-            SSLContext sslcontext = SSLContexts.custom().loadKeyMaterial(keyStore, mchId.toCharArray()).build();
-            //指定TLS版本
-            SSLConnectionSocketFactory sslsf = new SSLConnectionSocketFactory(sslcontext, new String[]{"TLSv1"}, null, SSLConnectionSocketFactory.BROWSER_COMPATIBLE_HOSTNAME_VERIFIER);
-            //设置httpclient的SSLSocketFactory
-            httpclient = HttpClients.custom().setSSLSocketFactory(sslsf).build();
-            HttpPost httppost = new HttpPost(url);
-            StringEntity reqEntity = new StringEntity(content, "UTF-8");
-            httppost.setEntity(reqEntity);
-            logger.info("request url: " + httppost.getRequestLine());
-            response = httpclient.execute(httppost);
-            result = EntityUtils.toString(response.getEntity(), "UTF-8");
-
-            JAXBContext jc = JAXBContext.newInstance(RefundResult.class);
-            Unmarshaller unmarshaller = jc.createUnmarshaller();
-//            RefundResult refundResult = (RefundResult) unmarshaller.unmarshal(new StringReader(result));
-            RefundResult refundResult = RefundResult.parseFromXML(result);
-            logger.info("-退款结果： " + JSON.toJSON(refundResult));
-            boolean refund = false;
-            if ("SUCCESS".equals(refundResult.getResult_code())) {
-                //退款成功
-                logger.info("-退款成功: ");
-                return Result.success();
-            } else {
-                logger.info("-失败原因： ");
-                //退款失败
-                return Result.success();
-
-            }
-
-        } catch (Exception e) {
-            logger.info(e.getMessage(), e);
-            return Result.fail("退款失败");
-        } finally {
-            try {
+            if (response != null) {
                 response.close();
-            } catch (Exception e) {
-                logger.info("关闭流 response 失败");
-                logger.info(e.getMessage(), e);
-            } finally {
-                response = null;
             }
+        } catch (Exception e) {
+            logger.info("关闭流 response 失败");
+            logger.info(e.getMessage(), e);
+        } finally {
+            response = null;
+        }
+    }
 
-            try {
-                httpclient.close();
-            } catch (Exception e) {
-                logger.info("关闭httpClient 失败");
-                logger.info(e.getMessage(), e);
-            } finally {
-                httpclient = null;
+    public void close(CloseableHttpClient httpClient) {
+        try {
+            if (httpClient != null) {
+                httpClient.close();
             }
+        } catch (Exception e) {
+            logger.info("关闭httpClient 失败");
+            logger.info(e.getMessage(), e);
+        } finally {
+            httpClient = null;
         }
     }
 
@@ -378,7 +422,7 @@ public class PayService {
 
         Map<String, String> map = new HashMap<>();
         List<Order> orders = orderRepository.findbyPayInfoIds(bid, Arrays.asList(idsArray));
-        for(int i = 0;i<orders.size();i++) {
+        for (int i = 0; i < orders.size(); i++) {
             Order order = orders.get(i);
             map.put(order.getBusinessOrderId(), order.getTransactionId());
         }
