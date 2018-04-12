@@ -28,14 +28,13 @@ public class PayController {
 
 
     @PostMapping("initOrder")
-    public Result createPrepayOrder(@Validated @RequestBody OrderDTO orderDTO){
+    public Result createPrepayOrder(@Validated @RequestBody OrderDTO orderDTO) {
         return payService.createPrepayOrder(orderDTO);
     }
 
 
-
     @GetMapping("getPrepay")
-    public Result getPrepay(@RequestParam  Long payOrderId){
+    public Result getPrepay(@RequestParam Long payOrderId) {
         return payService.initWxOrder(payOrderId);
     }
 
@@ -44,23 +43,29 @@ public class PayController {
      * description: 退款
      */
     @PostMapping("/order/refund")
-    public Result refundOrder(@RequestBody RefundDTO refundDTO){
+    public Result refundOrder(@RequestBody RefundDTO refundDTO) {
         return payService.refundOrder(refundDTO);
     }
 
     /**
      * 根据微信流水查询
+     *
      * @param no
      * @return
      */
     @GetMapping("/order/info")
-    public Result getOrderInfoByNo(@RequestParam String no){
+    public Result getOrderInfoByNo(@RequestParam String no) {
         return payService.getOrderInfoByNo(no);
     }
 
     @GetMapping("/order/info/batch")
-    public Result batchQueryByPayInfId(@RequestParam String ids,@RequestParam String  bid){
-        return payService.batchQueryByPayInfId(ids,bid);
+    public Result batchQueryByPayInfId(@RequestParam String ids, @RequestParam String bid) {
+        return payService.batchQueryByPayInfId(ids, bid);
+    }
+
+    @GetMapping("/order/payinfo")
+    public Result orderPayInfo(@RequestParam String id,@RequestParam String bid) {
+        return payService.orderPayInfo(id,bid);
     }
 
 }

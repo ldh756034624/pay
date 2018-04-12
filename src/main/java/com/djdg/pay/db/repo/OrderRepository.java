@@ -26,4 +26,7 @@ public interface OrderRepository extends BaseRepository<Order> {
 
     @Query("select o from Order o where o.businessAppId =?1 and o.businessOrderId in ?2")
     List<Order> findbyPayInfoIds(String bid, Collection ids);
+
+    @Query("select o from Order  o where o.businessAppId = ?1 and o.businessOrderId = ?2")
+    List<Order> findByBisAndOrderId(String bis, String orderId);
 }

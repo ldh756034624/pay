@@ -18,6 +18,7 @@ import com.djdg.pay.utils.JaxbUtil;
 import com.djdg.pay.utils.MD5Util;
 import com.djdg.pay.utils.RedisKeyUtil;
 import lombok.Data;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpResponse;
@@ -427,5 +428,17 @@ public class PayService {
             map.put(order.getBusinessOrderId(), order.getTransactionId());
         }
         return Result.success(map);
+    }
+
+
+
+    public Result orderPayInfo(String id, String bid) {
+        List<Order> orderList = orderRepository.findByBisAndOrderId(bid, id);
+        if (CollectionUtils.isNotEmpty(orderList)) {
+            Order order = orderList.get(0);
+            return Result.success(order);
+        }else{
+            return Result.fail();
+        }
     }
 }
