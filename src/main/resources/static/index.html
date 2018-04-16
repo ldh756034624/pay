@@ -46,7 +46,7 @@
       console.log('path', path)
       console.log('args', args)
       console.log('args.callback', args.callback)
-      console.log('serialize', serialize(args.callback, args))
+      console.log('getCallBack', getCallBack(path))
 
       ajax({
         type: "GET",
@@ -103,18 +103,12 @@
       });
     }
 
-    function serialize(host, params) {
-      var queryString = ''
-      for (var key in params) {
-        queryString += ('&' + key + '=' + params[key])
-      }
-      if (host.indexOf('?')) {
-        queryString = queryString.substring(1, host.length)
-        host += queryString
-      } else {
-        host += ('?' + queryString)
-      }
-      return host
+    function getCallBack(path) {
+      let callbackLength = 'callback='.length
+      let start = path.indexOf('callback')
+      let end = path.indexOf('&callbackFail')
+      let callback = path.substring(start + callbackLength, end)
+      return callback
     }
 
     // ajax方法封装
