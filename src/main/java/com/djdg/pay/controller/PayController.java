@@ -2,6 +2,7 @@ package com.djdg.pay.controller;
 
 import com.alibaba.fastjson.JSONObject;
 import com.djdg.pay.common.Result;
+import com.djdg.pay.db.entity.Order;
 import com.djdg.pay.model.dto.OrderDTO;
 import com.djdg.pay.model.dto.RefundDTO;
 import com.djdg.pay.service.PayService;
@@ -64,7 +65,7 @@ public class PayController {
     }
 
     @GetMapping("/order/payinfo")
-    public Result orderPayInfo(@RequestParam String id,@RequestParam String bid) {
+    public Result<Order> orderPayInfo(@RequestParam String id, @RequestParam String bid) {
         return payService.orderPayInfo(id,bid);
     }
 
