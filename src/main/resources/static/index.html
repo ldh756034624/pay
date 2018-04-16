@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+
 <head>
   <meta charset="utf-8"></meta>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0"></meta>
@@ -13,148 +14,151 @@
   <meta name="Keywords" content="微信支付"></meta>
   <title>微信支付</title>
   <style type="text/css">
-    body, html {
+    body,
+    html {
       background-color: #f1f1f1;
       margin: 0;
       padding: 0;
     }
   </style>
 </head>
+
 <body>
-<div class="box" id="box">
-  支付中... ...
-</div>
-<script src="https://res.wx.qq.com/open/js/jweixin-1.2.0.js"></script>
-<script type="text/javascript">
-
-  var path = decodeURIComponent(window.location.search.substring(1))
-  // 解析查询参数
-  if (path || true) {
-    var pairs = path.split("&");
-    var args = {} // 参数对象
-    for (var i = 0; i < pairs.length; i++) {
-      var pos = pairs[i].indexOf('=');
-      if (pos == -1) {
-        continue;
-      }
-      var argname = pairs[i].substring(0, pos);
-      var value = pairs[i].substring(pos + 1);
-      args[argname] = unescape(value);
-    }
-    console.log(args)
-    ajax({
-      type: "GET",
-      url: "/h9/pay/getPrepay?payOrderId=" + args.payOrderId,
-      dataType: "json",
-//      data: JSON.stringify({"orderId": 1}),
-//      token: args.token,
-//      client: args.client,
-      beforeSend: function (request) {
-        console.log('发送请求')
-      },
-      success: function (res) {
-        if (res.code === 0) {
-          wxPay(res.data)
+  <div class="box" id="box">
+    支付中... ...
+  </div>
+  <script src="https://res.wx.qq.com/open/js/jweixin-1.2.0.js"></script>
+  <script type="text/javascript">
+    var path = decodeURIComponent(window.location.search.substring(1))
+    // 解析查询参数
+    if (path || true) {
+      var pairs = path.split("&");
+      var args = {} // 参数对象
+      for (var i = 0; i < pairs.length; i++) {
+        var pos = pairs[i].indexOf('=');
+        if (pos == -1) {
+          continue;
         }
-      },
-      error: function () {
-        console.log("error")
+        var argname = pairs[i].substring(0, pos);
+        var value = pairs[i].substring(pos + 1);
+        args[argname] = unescape(value);
       }
-    })
-  } else {
-    alert('未获取到参数')
-  }
-
-  // 微信支付
-  function wxPay(config) {
-    wx.config({
-      debug: false,
-      appId: config.appId,
-      timestamp: config.timestamp,
-      nonceStr: config.nonceStr,
-      signature: config.paySign,
-      jsApiList: ['chooseWXPay']
-    })
-
-    wx.ready(function () {
-      wx.chooseWXPay({
-        timestamp: config.timestamp, // 支付签名时间戳，注意微信jssdk中的所有使用timestamp字段均为小写。但最新版的支付后台生成签名使用的timeStamp字段名需大写其中的S字符
-        nonceStr: config.nonceStr, // 支付签名随机串，不长于 32 位
-        package: config.packageParam, // 统一支付接口返回的prepay_id参数值，提交格式如：prepay_id=***）
-        signType: config.signType, // 签名方式，默认为'SHA1'，使用新版支付需传入'MD5'
-        paySign: config.paySign, // 支付签名
-        success: function (res) {
-          if (args.money) {
-            args.callback = args.callback + '&money=' + args.money + '&goodsName=' + args.goodsName
-          }
-          location.replace(args.callback)
+      ajax({
+        type: "GET",
+        url: "/h9/pay/getPrepay?payOrderId=" + args.payOrderId,
+        dataType: "json",
+        beforeSend: function (request) {
+          console.log('发送请求')
         },
-        cancel: function () {
-          alert('支付失败')
-          location.replace(args.callbackFail)
+        success: function (res) {
+          if (res.code === 0) {
+            wxPay(res.data)
+          }
+        },
+        error: function () {
+          console.log("error")
         }
-      });
-    });
-  }
-
-
-  // ajax方法封装
-  function ajax() {
-    var ajaxData = {
-      type: arguments[0].type || "GET",
-      url: arguments[0].url || "",
-      async: arguments[0].async || "true",
-      data: arguments[0].data || null,
-      token: arguments[0].token || null,
-      client: arguments[0].client || 3,
-      dataType: arguments[0].dataType || "text",
-      contentType: arguments[0].contentType || "application/json;charset=UTF-8",
-      beforeSend: arguments[0].beforeSend || function () {
-      },
-      success: arguments[0].success || function () {
-      },
-      error: arguments[0].error || function () {
-      }
-    }
-    ajaxData.beforeSend()
-    var xhr = createxmlHttpRequest();
-    xhr.responseType = ajaxData.dataType;
-    xhr.open(ajaxData.type, ajaxData.url, ajaxData.async);
-    xhr.setRequestHeader("Content-Type", ajaxData.contentType);
-    xhr.setRequestHeader("token", ajaxData.token);
-    xhr.setRequestHeader("client", ajaxData.client);
-    xhr.send(convertData(ajaxData.data));
-    xhr.onreadystatechange = function () {
-      if (xhr.readyState == 4) {
-        if (xhr.status == 200) {
-          ajaxData.success(xhr.response)
-        } else {
-          ajaxData.error()
-        }
-      }
-    }
-  }
-
-  function createxmlHttpRequest() {
-    if (window.ActiveXObject) {
-      return new ActiveXObject("Microsoft.XMLHTTP");
-    } else if (window.XMLHttpRequest) {
-      return new XMLHttpRequest();
-    }
-  }
-
-  function convertData(data) {
-    if (typeof data === 'object') {
-      var convertResult = "";
-      for (var c in data) {
-        convertResult += c + "=" + data[c] + "&";
-      }
-      convertResult = convertResult.substring(0, convertResult.length - 1)
-      return convertResult;
+      })
     } else {
-      return data;
+      alert('未获取到参数')
     }
-  }
-</script>
+
+    // 微信支付
+    function wxPay(config) {
+      wx.config({
+        debug: false,
+        appId: config.appId,
+        timestamp: config.timestamp,
+        nonceStr: config.nonceStr,
+        signature: config.paySign,
+        jsApiList: ['chooseWXPay']
+      })
+
+      wx.ready(function () {
+        wx.chooseWXPay({
+          timestamp: config.timestamp, // 支付签名时间戳，注意微信jssdk中的所有使用timestamp字段均为小写。但最新版的支付后台生成签名使用的timeStamp字段名需大写其中的S字符
+          nonceStr: config.nonceStr, // 支付签名随机串，不长于 32 位
+          package: config.packageParam, // 统一支付接口返回的prepay_id参数值，提交格式如：prepay_id=***）
+          signType: config.signType, // 签名方式，默认为'SHA1'，使用新版支付需传入'MD5'
+          paySign: config.paySign, // 支付签名
+          success: function (res) {
+            // if (args.money) {
+            //   args.callback = args.callback + '&money=' + args.money + '&goodsName=' + args.goodsName
+            // }
+            // location.replace(args.callback)
+            window.location.replace(getCallBack(path))
+          },
+          cancel: function () {
+            alert('支付失败')
+            location.replace(args.callbackFail)
+          }
+        });
+      });
+    }
+
+    function getCallBack(path) {
+      let callbackLength = 'callback='.length
+      let start = path.indexOf('callback')
+      let end = path.indexOf('&callbackFail')
+      let callback = path.substring(start + callbackLength, end)
+      return callback
+    }
+
+    // ajax方法封装
+    function ajax() {
+      var ajaxData = {
+        type: arguments[0].type || "GET",
+        url: arguments[0].url || "",
+        async: arguments[0].async || "true",
+        data: arguments[0].data || null,
+        token: arguments[0].token || null,
+        client: arguments[0].client || 3,
+        dataType: arguments[0].dataType || "text",
+        contentType: arguments[0].contentType || "application/json;charset=UTF-8",
+        beforeSend: arguments[0].beforeSend || function () {},
+        success: arguments[0].success || function () {},
+        error: arguments[0].error || function () {}
+      }
+      ajaxData.beforeSend()
+      var xhr = createxmlHttpRequest();
+      xhr.responseType = ajaxData.dataType;
+      xhr.open(ajaxData.type, ajaxData.url, ajaxData.async);
+      xhr.setRequestHeader("Content-Type", ajaxData.contentType);
+      xhr.setRequestHeader("token", ajaxData.token);
+      xhr.setRequestHeader("client", ajaxData.client);
+      xhr.send(convertData(ajaxData.data));
+      xhr.onreadystatechange = function () {
+        if (xhr.readyState == 4) {
+          if (xhr.status == 200) {
+            ajaxData.success(xhr.response)
+          } else {
+            ajaxData.error()
+          }
+        }
+      }
+    }
+
+    function createxmlHttpRequest() {
+      if (window.ActiveXObject) {
+        return new ActiveXObject("Microsoft.XMLHTTP");
+      } else if (window.XMLHttpRequest) {
+        return new XMLHttpRequest();
+      }
+    }
+
+    function convertData(data) {
+      if (typeof data === 'object') {
+        var convertResult = "";
+        for (var c in data) {
+          convertResult += c + "=" + data[c] + "&";
+        }
+        convertResult = convertResult.substring(0, convertResult.length - 1)
+        return convertResult;
+      } else {
+        return data;
+      }
+    }
+  </script>
 </body>
+
 </html>
