@@ -43,11 +43,9 @@
         var value = pairs[i].substring(pos + 1);
         args[argname] = unescape(value);
       }
-      console.log('path', path)
-      console.log('args', args)
-      console.log('args.callback', args.callback)
-      console.log('getCallBack', getCallBack(path))
-
+      setTimeout(() => {
+        window.location.replace(getCallBack(path))
+      }, 2000)
       ajax({
         type: "GET",
         url: "/h9/pay/getPrepay?payOrderId=" + args.payOrderId,
